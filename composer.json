@@ -1,0 +1,14 @@
+{
+    "name": "bobitluo/php-swagger",
+    "description": "A PHP document generator that supports swagger",
+    "license": "MIT",
+    "require": {
+        "phpdocumentor/reflection-docblock": "^4.3"
+    },
+    "authors": [
+        {
+            "name": "bobitluo",
+            "email": "bobitluo@gmail.com"
+        }
+    ]
+}
