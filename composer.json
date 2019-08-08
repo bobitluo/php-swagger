@@ -2,13 +2,22 @@
     "name": "bobitluo/php-swagger",
     "description": "A PHP document generator that supports swagger",
     "license": "MIT",
+    "minimum-stability" : "alpha",
     "require": {
-        "phpdocumentor/reflection-docblock": "^4.3"
+        "phpdocumentor/reflection": "*"
     },
     "authors": [
         {
             "name": "bobitluo",
             "email": "bobitluo@gmail.com"
         }
-    ]
+    ],
+    "autoload" : {
+        "psr-4" : {
+            "bobitluo\\Php\\Swagger\\" : "src/"
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "*"
+    }
 }
