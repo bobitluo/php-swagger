@@ -3,51 +3,109 @@ namespace bobitluo\Php\Swagger\Builder;
 
 use phpDocumentor\Reflection\Php\Class_ as RefClass;
 
+use bobitluo\Php\Swagger\Options;
+
 class Class_{
     
     private $refClass;
-    private $swagger;
+    private $uriPath;
 
-    public function __construct( RefClass $refClass ){
+    private $controllerPrefix;
+    private $controllerPostfix;
+    private $actionPrefix;
+    private $actionPostfix;
+
+    private $classPackages;
+
+    public function __construct( RefClass $refClass, $uriPath = '' ){
         $this->refClass = $refClass;
+        $this->uriPath = $uriPath;
+
+        $options = Options::getInstance();
+        $this->controllerPrefix = $options->getOption('controller_prefix');
+        $this->controllerPostfix = $options->getOption('controller_postfix');
+        $this->actionPrefix = $options->getOption('action_prefix');
+        $this->actionPostfix = $options->getOption('action_postfix');
+
+        $this->classPackages = [];
     }
 
-    public function build( $postfix = '' ){
+    public function build(){
         $classDocBlock = $this->refClass->getDocBlock();
-        //$docPackages = $classDocBlock->getTagsByName( 'package' );
-        //$swaggerTags = $this->buildSwaggerTags( $docPackages );
-        $swaggerTags = '';
 
+        if( $classDocBlock ){
+            $docPackages = $classDocBlock->getTagsByName( 'package' );
+        }else{
+            $docPackages = [];
+        }
+
+        $this->classPackages = $this->buildSwaggerTags( $docPackages );
         $refMethods = $this->refClass->getMethods();
         $paths = [];
 
         foreach( $refMethods as $refMethod ){
-
-            if ( $refMethod->getVisibility() != 'public' ){
+            if( ! $this->isActionMethod( $refMethod ) ){
                 continue;
             }
 
-            if( $postfix && ($postfix != substr($refMethod->getName(), 0-strlen($postfix))) ){
-                continue;
-            }
-
-            $uri = strtolower($this->refClass->getName()) . '/' . strtolower(rtrim($refMethod->getName(), $postfix));
-            $httpMethod = 'post';
             $docMethod = $refMethod->getDocBlock();
 
-            if( $docMethod ){
-                $swaggerOperation = $this->buildSwaggerOperation( $docMethod, $swaggerTags, $httpMethod );
-
-                $paths[$uri] = [
-                    $httpMethod => $swaggerOperation,
-                ];
+            if( ! $docMethod ){
+                continue;
             }
+
+            $uri = $this->buildUri( $this->refClass, $refMethod );
+            $httpMethod = $this->buildHttpMethod( $docMethod );
+            $swaggerOperation = $this->buildSwaggerOperation( $docMethod, $httpMethod );
+
+            $paths[$uri] = [
+                $httpMethod => $swaggerOperation,
+            ];
         }
 
         return $paths;
     }
 
-    private function buildSwaggerOperation( $docMethod, $parentTags, $httpMethod ){
+    private function isActionMethod( $refMethod ){
+        if ( $refMethod->getVisibility() != 'public' ){
+            return false;
+        }
+
+        if( $this->actionPrefix && ($this->actionPrefix != substr($refMethod->getName(), 0, strlen($this->actionPrefix))) ){
+            return false;
+        }
+
+        if( $this->actionPostfix && ($this->actionPostfix != substr($refMethod->getName(), 0-strlen($this->actionPostfix))) ){
+            return false;
+        }
+
+        return true;
+    }
+
+    private function buildUri( $refClass, $refMethod ){
+        $controller = $refClass->getName();
+        $controller = preg_replace("/^({$this->controllerPrefix})/", '', $controller);
+        $controller = preg_replace("/({$this->controllerPostfix})$/", '', $controller);
+
+        $action = $refMethod->getName();
+        $action = preg_replace("/^({$this->actionPrefix})/", '', $action);
+        $action = preg_replace("/({$this->actionPostfix})$/", '', $action);
+
+        $uri = strtolower("{$this->uriPath}/{$controller}/{$action}");
+        return $uri;
+    }
+
+    private function buildHttpMethod( $docMethod ){
+        $httpMethodTags = $docMethod->getTagsByName('http-method');
+
+        if( count($httpMethodTags) > 0 ){
+            return $httpMethodTags[0]->__toString();
+        }else{
+            return 'get';
+        }
+    }
+
+    private function buildSwaggerOperation( $docMethod, $httpMethod ){
         $docPackages = $docMethod->getTagsByName('package');
         $docParams = $docMethod->getTagsByName('param');
         $swaggerParams = $this->buildSwaggerParams( $docParams, $httpMethod );
@@ -55,7 +113,7 @@ class Class_{
         $swaggerResponses = $this->buildSwaggerResponses( $docReturns );
 
         $swaggerOperation = [
-            'tags' => $this->buildSwaggerTags($docPackages) ?: $parentTags, // 方法无@package时使用类@package摘要作为分类
+            'tags' => $this->buildSwaggerTags($docPackages) ?: $this->classPackages, // 方法无@package时使用类@package摘要作为分类
             'summary' => $docMethod->getSummary(),
             'description' => $docMethod->getDescription()->render(),
         ];

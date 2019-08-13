@@ -8,19 +8,26 @@ use bobitluo\Php\Swagger\Builder\File as BuilderFile;
 class Directory {
 
     private $path;
+    private $callbackUriPath;
     private $files;
     private $swagger;
 
-    public function __construct( $path, $title, $version ){
+    public function __construct( $dir, Callable $callbackUriPath = null ){
         $this->files = [];
-        $this->path = $path;
+        $this->path = $dir;
+        $this->callbackUriPath = $callbackUriPath;
+
+        $objOptions = Options::getInstance();
 
         $this->swagger = [
             'swagger' => '2.0',
+            'description' => $objOptions->getOption('description'),
             'info' => [
-                'title' => $title,
-                'version' => $version,
+                'title' => $objOptions->getOption('title'),
+                'version' => $objOptions->getOption('version'),
             ],
+            'host' => $objOptions->getOption('host'),
+            'schemes' => $objOptions->getOption('schemes'),
             'consumes' => [
                 'application/x-www-form-urlencoded',
             ],
@@ -46,15 +53,34 @@ class Directory {
         $refFiles = $project->getFiles();
 
         foreach( $refFiles as $refFile ){
-            $builderFile = new BuilderFile( $refFile );
+            $uriPath = $this->buildUriPath( $refFile->getPath() );
+            $builderFile = new BuilderFile( $refFile, $uriPath );
             $this->swagger['paths'] += $builderFile->build();
         }
 
         return json_encode( $this->swagger );
     }
 
+    private function buildUriPath( $path ){
+        $pathinfo = pathinfo( $path );
+        $pattern = str_replace('/', '\/', $this->path);
+        $pattern = "/^({$pattern})/";
+        $uriPath = preg_replace($pattern, '', $pathinfo['dirname']);
+
+        if( $this->callbackUriPath ){
+            $uriPath = call_user_func_array( $this->callbackUriPath, [$uriPath] );
+        }
+
+        return $uriPath;
+    }
+
     private function traverseDir( $path ){
         $handle = opendir( $path );
+
+        if( $handle === false ){
+            error_log( "Can't open the directory [{$path}]" );
+            return false;
+        }
 
         try{
             while( false !== ($file = readdir($handle)) ){
