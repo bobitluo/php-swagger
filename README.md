@@ -54,7 +54,12 @@ PHP注释样例
 ----------
 
 ```php
-    /**
+/**
+ * @package 用户
+ */
+class UserController {
+
+	/** 
      * 登录
      *
      * 支持密码和验证码两种方式登录
@@ -69,31 +74,36 @@ PHP注释样例
      * @return json
      * 
      * 返回码：
-     * | 编码 | 描述 |
-     * | 200 | 成功 |
-     * | 404 | 用户不存在 |
+     *
+     * 编码 | 描述
+     * ---- | ---
+     * 200  | 成功
+     * 404  | 用户不存在
      *
      * 字段解释:
-     * | 名称 | 类型 | 样例 | 描述 |
-     * | expires | int | 1565796956 | 凭证过期时间戳 |
-     * | type | string | Bearer | 凭证类型 |
-     * | token | string | xxxxxxxxxxxxxxxxxxxxx | 登录凭证 |
+     *
+     * 名称    | 类型 | 样例 | 描述 
+     * ------- | ---- | ---- | ----
+     * expires | int | 1565796956 | 凭证过期时间戳
+     * type    | string | Bearer | 凭证类型
+     * token   | string | xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx | 登录凭证
      *
      * 返回样例:
-     * <pre><code>
+     *
+     * ```
      * {
      *   "ret_code": 200,
      *   "ret_msg": "success",
      *   "result": {
      *     "expires": 1565796956,
      *     "type": "Bearer",
-     *     "token": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+     *     "token": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
      *   }
      * }
-     * </code></pre>
+     * ```
      */
-    public function loginAction(){
-       ...
+    public function loginAction() {
+	  ...
 ```
 
 PHP注释描述
@@ -103,7 +113,7 @@ PHP注释描述
 | :------------- | :------------ | :----------- | :-------- |
 | title          | 接口标题 | 登录 | 建议简短 |
 | descritpion    | 接口描述 | 支持密码和验证码两种方式登录 | 可多行 |
-| @package        | 接口所在的分类 | @package 用户 | SwaggerUI中会根据分类分组显示。<br>可在controller类注释中添加此类所有Action的默认分类 |
+| @package        | 接口所在的分类 | @package 用户 | SwaggerUI中会根据分类分组显示。<br>可在Controller类注释中添加此类所有Action的默认分类 |
 | @http-method    | 接口请求方法 | @http-method post | 目前仅较好的支持get, post |
 | @param          | 接口参数 | @param string $cellphone* 手机号 13800138000 | 数据类型 参数名($开头,末尾加*表示必填) 参数描述 默认值 |
-| @return         | 接口返回 | @return json <br><br> \| 编码 \| 描述 \| <br> \| 200 \| 成功 \| <br> ... | @return 标签后紧跟接口返回类型(如：json, xml)，后续多行支持[textile](https://textile-lang.com/)格式的内容 | 
+| @return         | 接口返回 | @return json <br><br> 返回码: <br><br> 编码 \| 描述 <br> ------ \| ------ <br> 200 \| 成功 <br> ... | @return 标签后紧跟接口返回类型(如：json, xml)，后续多行支持[Markdown](https://guides.github.com/features/mastering-markdown/)格式的内容 | 
