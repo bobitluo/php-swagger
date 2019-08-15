@@ -56,7 +56,7 @@ class Class_{
 
             $uri = $this->buildUri( $this->refClass, $refMethod );
             $httpMethod = $this->buildHttpMethod( $docMethod );
-            $swaggerOperation = $this->buildSwaggerOperation( $docMethod, $httpMethod );
+            $swaggerOperation = $this->buildMethod( $docMethod, $httpMethod );
 
             $paths[$uri] = [
                 $httpMethod => $swaggerOperation,
@@ -105,12 +105,12 @@ class Class_{
         }
     }
 
-    private function buildSwaggerOperation( $docMethod, $httpMethod ){
+    private function buildMethod( $docMethod, $httpMethod ){
         $docPackages = $docMethod->getTagsByName('package');
         $docParams = $docMethod->getTagsByName('param');
-        $swaggerParams = $this->buildSwaggerParams( $docParams, $httpMethod );
+        $swaggerParams = $this->buildMethodParams( $docParams, $httpMethod );
         $docReturns = $docMethod->getTagsByName('return');
-        $swaggerResponses = $this->buildSwaggerResponses( $docReturns );
+        $swaggerResponses = $this->buildMethodResponses( $docReturns, $swaggerProduces );
 
         $swaggerOperation = [
             'tags' => $this->buildSwaggerTags($docPackages) ?: $this->classPackages, // 方法无@package时使用类@package摘要作为分类
@@ -120,6 +120,10 @@ class Class_{
 
         if( $swaggerParams ){
             $swaggerOperation['parameters'] = $swaggerParams;
+        }
+
+        if( $swaggerProduces ){
+            $swaggerOperation['produces'] = $swaggerProduces;
         }
 
         if( $swaggerResponses ){
@@ -139,7 +143,7 @@ class Class_{
         return $tags;
     }
 
-    private function buildSwaggerParams( $docParams, $httpMethod ){
+    private function buildMethodParams( $docParams, $httpMethod ){
         $swaggerParams = [];
 
         foreach( $docParams as $paramDocBlock ){
@@ -171,17 +175,24 @@ class Class_{
             }
 
             $type = (string)$paramDocBlock->getType();
+
             if( $type == 'int' ){
                 $type = 'integer';
             }
+
             if( $type == 'bool' ){
                 $type = 'boolean';
             }
 
+            $split = preg_split('/\\s+/Su', $paramDocBlock->getDescription()->render());
+            $description = $split[0] ?? '';
+            $default = $split[1] ?? '';
+
             $swaggerParam = [
                 'name' => $variableName,
                 'in' => $in,
-                'description' => $paramDocBlock->getDescription()->render(),
+                'default' => $default,
+                'description' => $description,
                 'required' => $required,
                 'type' => $type,
             ];
@@ -192,58 +203,33 @@ class Class_{
         return $swaggerParams;
     }
 
-    private function buildSwaggerResponses( $docReturns ){
+    private function buildMethodResponses( $docReturns, & $produces ){
         $swaggerResponses = [];
+        $parser = new \Netcarver\Textile\Parser();
+
         foreach( $docReturns as $returnDocBlock ){
             $returnDescription = (string)$returnDocBlock->getDescription();
+            $description = $parser->setDocumentType('html5')->parse( $returnDescription );
+            $description = str_replace('<table', '<table border="1"', $description);
 
-            if( preg_match_all('/(\|.+\| *\n)+/', $returnDescription, $wikiTables) > 0 ){
-                foreach( $wikiTables[0] as $wikiTable ){
-                    $htmlTable = '<table>';
-                    $wikiTable = trim($wikiTable);
-                    $wikiRows = preg_split('/[\n\r]+/', $wikiTable);
+            $produces[] = $this->resolveType( $returnDocBlock->getType() );
 
-                    foreach( $wikiRows as $i=>$wikiRow ){
-                        $htmlTable .= '<tr>';
-                        $wikiRow = trim($wikiRow);
-                        $wikiRow = trim($wikiRow, '|');
-                        $wikiCells = explode('|', $wikiRow);
-
-                        foreach( $wikiCells as $wikiCell ){
-                            $htmlTable .= $i==0 ? '<th>' : '<td>';
-                            $htmlTable .= trim($wikiCell);
-                            $htmlTable .= $i==0 ? '</th>' : '</td>';
-                        }
-                        $htmlTable .= '</tr>';
-                    }
-                    $htmlTable .= '</table>';
-                    $returnDescription = str_replace($wikiTable, $htmlTable, $returnDescription);
-                }
-            }
-
-            $swaggerExample = null;
-            if( preg_match('/\n\s*\{(.*\n)*.*\}(.*\n)*$/', $returnDescription, $exampleJson ) ){
-                $swaggerExample = json_decode(trim($exampleJson[0]));
-                $returnDescription = str_replace($exampleJson[0], '', $returnDescription);
-            }
-
-            $returnDescription = preg_replace( '/\n/', '<br/>', $returnDescription );
-
-            $swaggerResponse = [
-                'description' => $returnDescription,
+            $swaggerResponses['200'] = [
+                'description' => $description,
             ];
-
-            if( $swaggerExample ){
-                $swaggerResponse['example'] = $swaggerExample;
-            }
-
-            $swaggerCode = (string)$returnDocBlock->getType();
-            $swaggerCode = ltrim($swaggerCode, "\\");
-            $swaggerResponses[$swaggerCode] = $swaggerResponse;
-
         }
 
         return $swaggerResponses;
+    }
+
+    private function resolveType( $type ){
+        $type = strtolower( ltrim($type, '\\') );
+
+        if( in_array($type, ['json', 'xml']) ){
+            $type = "application/{$type}";
+        }
+
+        return $type;
     }
 
 }

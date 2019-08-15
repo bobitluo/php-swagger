@@ -9,6 +9,8 @@ class Options {
         'version' => '',
         'host' => '',
         'schemes' => '',
+        'securityDefinitions' => [],
+        'security' => [],
         'controller_prefix' => '',
         'controller_postfix' => '',
         'action_prefix' => '',

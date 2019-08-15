@@ -21,13 +21,15 @@ class Directory {
 
         $this->swagger = [
             'swagger' => '2.0',
-            'description' => $objOptions->getOption('description'),
             'info' => [
                 'title' => $objOptions->getOption('title'),
                 'version' => $objOptions->getOption('version'),
+                'description' => $objOptions->getOption('description'),
             ],
             'host' => $objOptions->getOption('host'),
             'schemes' => $objOptions->getOption('schemes'),
+            'securityDefinitions' => $objOptions->getOption('securityDefinitions'),
+            'security' => $objOptions->getOption('security'),
             'consumes' => [
                 'application/x-www-form-urlencoded',
             ],
