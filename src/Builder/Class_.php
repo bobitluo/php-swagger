@@ -205,13 +205,11 @@ class Class_{
 
     private function buildMethodResponses( $docReturns, & $produces ){
         $swaggerResponses = [];
-        $parser = new \Netcarver\Textile\Parser();
+        $parsedown = new \Parsedown();
 
         foreach( $docReturns as $returnDocBlock ){
             $returnDescription = (string)$returnDocBlock->getDescription();
-            $description = $parser->setDocumentType('html5')->parse( $returnDescription );
-            $description = str_replace('<table', '<table border="1"', $description);
-
+            $description = $parsedown->text( $returnDescription );
             $produces[] = $this->resolveType( $returnDocBlock->getType() );
 
             $swaggerResponses['200'] = [

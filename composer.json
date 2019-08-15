@@ -6,7 +6,7 @@
     "require": {
         "phpdocumentor/reflection-docblock": "^5@alpha",
         "phpdocumentor/reflection": "^4@alpha",
-        "netcarver/textile": "~3.7"
+        "erusev/parsedown": "^1.7"
     },
     "authors": [
         {
