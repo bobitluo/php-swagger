@@ -59,7 +59,7 @@ PHP注释样例
  */
 class UserController {
 
-	/** 
+    /** 
      * 登录
      *
      * 支持密码和验证码两种方式登录
