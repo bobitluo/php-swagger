@@ -4,7 +4,7 @@ php-swagger
 Introduction
 ------------
 
-一个基于 [phpDocumentor](https://www.phpdoc.org/) 生成 [Swagger2.0] (https://swagger.io/docs/specification/2-0/basic-structure/) json 的PHP文档生成器
+一个基于 [phpDocumentor](https://www.phpdoc.org/) 生成 [Swagger2.0](https://swagger.io/docs/specification/2-0/basic-structure/) json 的PHP文档生成器
 
 Installation
 ------------
