@@ -174,7 +174,7 @@ class Class_{
                 }
             }
 
-            $type = (string)$paramDocBlock->getType();
+            $type = ltrim( $paramDocBlock->getType(), '\\' );
 
             if( $type == 'int' ){
                 $type = 'integer';
