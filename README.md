@@ -71,18 +71,11 @@ class UserController {
      * @param string $cellphone* 手机号 13800138000
      * @param string $password* 密码 123456
      *
-     * @return json
-     * 
-     * 返回码：
-     *
-     * 编码 | 描述
-     * ---- | ---
-     * 200  | 成功
-     * 404  | 用户不存在
+     * @return json 200 成功
      *
      * 字段解释:
      *
-     * 名称    | 类型 | 样例 | 描述 
+     * 名称    | 类型 | 示例 | 描述 
      * ------- | ---- | ---- | ----
      * expires | int | 1565796956 | 凭证过期时间戳
      * type    | string | Bearer | 凭证类型
@@ -101,6 +94,7 @@ class UserController {
      *   }
      * }
      * ```
+     * @return json 401 认证失败
      */
     public function loginAction() {
 	  ...
@@ -116,4 +110,4 @@ PHP注释描述
 | @package        | 接口所在的分类 | @package 用户 | SwaggerUI中会根据分类分组显示。<br>可在Controller类注释中添加此类所有Action的默认分类 |
 | @http-method    | 接口请求方法 | @http-method post | 目前仅较好的支持get, post |
 | @param          | 接口参数 | @param string $cellphone* 手机号 13800138000 | 数据类型 参数名($开头,末尾加*表示必填) 参数描述 默认值 |
-| @return         | 接口返回 | @return json <br><br> 返回码: <br><br> 编码 \| 描述 <br> ------ \| ------ <br> 200 \| 成功 <br> ... | @return 标签后紧跟接口返回类型(如：json, xml)，后续多行支持[Markdown](https://guides.github.com/features/mastering-markdown/)格式的内容 | 
+| @return         | 接口返回 | @return json 200 成功 <br><br> 字段解释: <br><br> 名称 \| 类型 \| 示例 \| 描述 <br> ------ \| ------ \| ------ \| ----- <br> expires \| int \| 1565796956 \| 凭证过期时间戳 <br> ... | @return 标签后紧跟接口返回类型(如：json, xml)，返回码，返回码描述。后续多行支持[Markdown](https://guides.github.com/features/mastering-markdown/)格式的内容 | 
