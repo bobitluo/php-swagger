@@ -197,6 +197,11 @@ class Class_{
                 'type' => $type,
             ];
 
+            if( strtolower($swaggerParam['type']) == 'array' ) {
+                $swaggerParam['collectionFormat'] = 'multi';
+                $swaggerParam['items'] = [ 'type'=>'string' ];
+            }
+
             $swaggerParams[] = $swaggerParam;
         }
 
@@ -209,10 +214,18 @@ class Class_{
 
         foreach( $docReturns as $returnDocBlock ){
             $returnDescription = (string)$returnDocBlock->getDescription();
-            $description = $parsedown->text( $returnDescription );
+
+            $pattern = '/^\h*(\d+)\h+(\S+)\h*\n?/';
+            preg_match($pattern, $returnDescription, $codeDescs);
+            $returnDescription = preg_replace($pattern, '', $returnDescription);
+
+            $code = $codeDescs[1] ?? '';
+            $description = $codeDescs[2] ?? '';
+
+            $description .= $parsedown->text( $returnDescription );
             $produces[] = $this->resolveType( $returnDocBlock->getType() );
 
-            $swaggerResponses['200'] = [
+            $swaggerResponses[$code] = [
                 'description' => $description,
             ];
         }
