@@ -4,8 +4,7 @@
     "license": "MIT",
     "minimum-stability" : "stable",
     "require": {
-        "phpdocumentor/reflection-docblock": "^5@alpha",
-        "phpdocumentor/reflection": "^4@alpha",
+        "phpdocumentor/reflection": "~4.0",
         "erusev/parsedown": "^1.7"
     },
     "authors": [
