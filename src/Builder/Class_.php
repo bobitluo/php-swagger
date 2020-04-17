@@ -191,11 +191,14 @@ class Class_{
             $swaggerParam = [
                 'name' => $variableName,
                 'in' => $in,
-                'default' => $default,
                 'description' => $description,
                 'required' => $required,
                 'type' => $type,
             ];
+
+            if( $default !== '' ) {
+                $swaggerParam['default'] = $default;
+            }
 
             if( strtolower($swaggerParam['type']) == 'array' ) {
                 $swaggerParam['collectionFormat'] = 'multi';
@@ -229,6 +232,8 @@ class Class_{
                 'description' => $description,
             ];
         }
+
+        $produces = array_unique( $produces );
 
         return $swaggerResponses;
     }

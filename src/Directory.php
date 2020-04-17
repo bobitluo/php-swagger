@@ -60,6 +60,8 @@ class Directory {
             $this->swagger['paths'] += $builderFile->build();
         }
 
+        ksort( $this->swagger['paths'], SORT_STRING );
+
         return json_encode( $this->swagger );
     }
 
