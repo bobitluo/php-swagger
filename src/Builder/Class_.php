@@ -147,6 +147,11 @@ class Class_{
         $swaggerParams = [];
 
         foreach( $docParams as $paramDocBlock ){
+            if( $paramDocBlock instanceof \phpDocumentor\Reflection\DocBlock\Tags\InvalidTag ){
+                error_log( var_export($paramDocBlock, true) );
+                continue;
+            }
+
             $variableName = $paramDocBlock->getVariableName();
 
             // *号结尾的参数名标识必填字段
@@ -233,7 +238,9 @@ class Class_{
             ];
         }
 
-        $produces = array_unique( $produces );
+        if( $produces ) {
+            $produces = array_unique( $produces );
+        }
 
         return $swaggerResponses;
     }
