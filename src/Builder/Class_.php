@@ -208,6 +208,7 @@ class Class_{
             if( strtolower($swaggerParam['type']) == 'array' ) {
                 $swaggerParam['collectionFormat'] = 'multi';
                 $swaggerParam['items'] = [ 'type'=>'string' ];
+                $swaggerParam['default'] = [$default ?? ''];
             }
 
             $swaggerParams[] = $swaggerParam;
