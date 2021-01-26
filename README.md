@@ -68,8 +68,11 @@ class UserController {
      * @http-method post
      *
      * @param string $login_type* 登录类型(password,sms_code) password
-     * @param string $cellphone* 手机号 13800138000
+     * @param int $cellphone* 手机号 13800138000
      * @param string $password* 密码 123456
+     * @param array $options[] 选项数组 10
+     * @param array $ext[id][] 扩展ID数组
+     * @param array $ext[name][] 扩展名称数组
      *
      * @return json 200 成功
      *

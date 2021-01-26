@@ -208,6 +208,7 @@ class Class_{
             if( strtolower($swaggerParam['type']) == 'array' ) {
                 $swaggerParam['collectionFormat'] = 'multi';
                 $swaggerParam['items'] = [ 'type'=>'string' ];
+                $swaggerParam['default'] = [$default ?? ''];
             }
 
             $swaggerParams[] = $swaggerParam;
@@ -223,7 +224,7 @@ class Class_{
         foreach( $docReturns as $returnDocBlock ){
             $returnDescription = (string)$returnDocBlock->getDescription();
 
-            $pattern = '/^\h*(\d+)\h+(\S+)\h*\n?/';
+            $pattern = '/^\h*(\d+)\h*(\S*)\h*\n?/';
             preg_match($pattern, $returnDescription, $codeDescs);
             $returnDescription = preg_replace($pattern, '', $returnDescription);
 
